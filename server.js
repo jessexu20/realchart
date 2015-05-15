@@ -4,33 +4,27 @@
     _this = this;
 
   express = require('express');
-
+  var path 	= require("path");
+  var bodyParser = require('body-parser');
+  var methodOverride = require('method-override');
+  var errorHandler = require('errorhandler');
   this.io = require('socket.io');
 
-  app = module.exports = express();
+  app =express();
+  app.set('views', path.join(__dirname, 'views'));
+  app.set('view engine', 'jade');
+  app.use(bodyParser.json());
+  app.use(methodOverride());
 
-  app.configure(function() {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(require('stylus').middleware({
-      src: __dirname + '/public'
-    }));
-    app.use(app.router);
-    return app.use(express["static"](__dirname + '/public'));
-  });
-
-  app.configure('development', function() {
-    return app.use(express.errorHandler({
-      dumpExceptions: true,
+  if ('development' == app.get('env')) {
+    app.use(errorHandler({
+	  dumpExceptions: true,
       showStack: true
     }));
-  });
-
-  app.configure('production', function() {
-    return app.use(express.errorHandler());
-  });
+  }
+  if ('production' == app.get('env')) {
+    app.use(errorHandler());
+  }
 
   count = 6;
 
@@ -42,7 +36,7 @@
 
   connection = mysql.createConnection({
     host: 'localhost',
-    user: 'root',
+    user: 'admin',
     password: 'password',
     database: 'realtime'
   });
@@ -125,7 +119,7 @@
     var mys;
     mys = mysql.createConnection({
       host: 'localhost',
-      user: 'root',
+      user: 'admin',
       password: 'password',
       database: 'realtime'
     });
